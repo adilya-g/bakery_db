@@ -24,3 +24,6 @@
 
 ### Схема базы данных
 ![Схема:](Bakery.drawio.png)
+
+### Схема базы данных PgAdmin
+![Схема;](bakery_db_schema.pgerd.png)
