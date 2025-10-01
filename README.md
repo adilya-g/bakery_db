@@ -27,3 +27,5 @@
 
 ### Схема базы данных PgAdmin
 ![Схема;](bakery_db_schema.pgerd.png)
+
+### [Запросы и создание](https://docs.google.com/document/d/17R0X_agDJ6w852HzB7mRC3EsHGInvWIH3SKPjENJI9c/edit?usp=sharing)
