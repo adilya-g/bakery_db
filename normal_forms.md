@@ -4,8 +4,8 @@
 
 ### units
 
-CREATE TABLE bakery_db.units ( <br>  
-    unit_id SERIAL PRIMARY KEY,<br>  
+CREATE TABLE bakery_db.units ( <br>
+    unit_id SERIAL PRIMARY KEY,<br>
     unit_name VARCHAR(20) NOT NULL UNIQUE, -- например, "g", "ml", "pcs"<br>
     description VARCHAR(100)<br>
 );<br>
@@ -14,6 +14,8 @@ INSERT INTO bakery_db.units (unit_name, description) VALUES<br>
 ('g', 'граммы'),<br>
 ('ml', 'миллилитры'),<br>
 ('pcs', 'штуки');<br>
+
+![alt text](image.png)
 
 ### baking_goods
 
@@ -132,5 +134,6 @@ ALTER TABLE bakery_db.recipes<br>
     DROP COLUMN IF EXISTS proteins,<br>
     DROP COLUMN IF EXISTS fats,<br>
     DROP COLUMN IF EXISTS carbohydrates;<br>
+
 
 ![alt text](bakery_db_schema_normalised.pgerd.png)
