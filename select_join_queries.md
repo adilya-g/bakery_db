@@ -7,10 +7,14 @@ SELECT *
 FROM bakery_db.delivery_orders;
 ![]()
 
+![alt text](image.png)
+
 ### б) Все данные из таблицы baking_goods
 SELECT *
 FROM bakery_db.baking_goods;
 ![]()
+
+![alt text](image-1.png)
 
 ## 2. Выборка отдельных столбцов
 
@@ -19,10 +23,14 @@ SELECT name, address
 FROM bakery_db.bakeries;
 ![]()
 
+![alt text](image-2.png)
+
 ### б) Имена, фамилии и должности работников из таблицы workers
 SELECT first_name, second_name, role
 FROM bakery_db.workers;
 ![]()
+
+![alt text](image-3.png)
 
 ## 3. Присвоение новых имен столбцам
 
@@ -34,6 +42,8 @@ SELECT
 FROM bakery_db.clients;
 ![]()
 
+![alt text](image-4.png)
+
 ### б)
 SELECT 
     name,
@@ -44,6 +54,8 @@ SELECT
 FROM bakery_db.ingredients;
 ![]()
 
+![alt text](image-5.png)
+
 ## 4. Выборка с вычисляемым столбцом
 
 ### а)
@@ -52,11 +64,15 @@ FROM bakery_db.ingredients;
 FROM bakery_db.ingredients;**
 ![]()
 
+![alt text](image-6.png)
+
 ### б)
 **SELECT client_id, phone_number, birth_date,
     (CASE WHEN (birth_date LIKE '%10-14') THEN 'yes' ELSE 'no' END) AS has_discount
 FROM bakery_db.clients;**
 ![]()
+
+![alt text](image-7.png)
 
 ## 5. Математические функции
 
@@ -68,11 +84,15 @@ unit_id, recipe_id
 FROM bakery_db.baking_goods;
 ![]()
 
+![alt text](image-8.png)
+
 ### б) Скидка 5% за каждую 2-ю позицию
 SELECT order_id, baking_id,
      (quantity % 2 * 5) AS discount
 FROM bakery_db.order_baking_goods;
 ![]()
+
+![alt text](image-9.png)
 
 ## 6. Логические функции
 
@@ -88,6 +108,8 @@ FROM bakery_db.order_baking_goods;
 FROM bakery_db.ingredients;**
 ![]()
 
+![alt text](image-10.png)
+
 ### б) Классификация работников по возрасту
 SELECT 
     first_name AS Имя,
@@ -101,6 +123,8 @@ SELECT
 FROM bakery_db.workers;
 ![]()
 
+![alt text](image-11.png)
+
 ## 7. Выборка данных по условию
 
 ### а) Высококалорийные ингредиенты
@@ -111,6 +135,8 @@ FROM bakery_db.ingredients
 WHERE calories > 300;
 ![]()
 
+![alt text](image-12.png)
+
 ### б) Работники определенной пекарни
 SELECT 
     first_name AS имя,
@@ -119,6 +145,8 @@ SELECT
 FROM bakery_db.workers
 WHERE bakery_id = 2;
 ![]()
+
+![alt text](image-13.png)
 
 ## 8. Логические операции
 
@@ -131,6 +159,8 @@ FROM bakery_db.workers
 WHERE role = 'Пекарь' OR role = 'Кондитер';
 ![]()
 
+![alt text](image-14.png)
+
 ### б) Ингредиенты с высокой пищевой ценностью
 SELECT 
     name AS ингредиент,
@@ -141,6 +171,8 @@ FROM bakery_db.ingredients
 WHERE calories > 150 AND fats < 20 AND proteins > 5;
 ![]()
 
+![alt text](image-15.png)
+
 ## 9. Операторы BETWEEN, IN
 
 ### а) Товары с весом от 100 до 500
@@ -150,6 +182,8 @@ FROM bakery_db.baking_goods
 WHERE size BETWEEN 100 AND 500;
 ![]()
 
+![alt text](image-16.png)
+
 ### б) Определенные хлебобулочные изделия
 SELECT 
     name AS изделие,
@@ -158,6 +192,8 @@ SELECT
 FROM bakery_db.baking_goods
 WHERE name IN ('Хлеб пшеничный', 'Булочка сдобная', 'Печенье овсяное');
 ![]()
+
+![alt text](image-17.png)
 
 ## 10. Сортировка
 
@@ -169,6 +205,8 @@ FROM bakery_db.ingredients
 ORDER BY calories DESC;
 ![]()
 
+![alt text](image-18.png)
+
 ### б) Сортировка работников по фамилии
 SELECT 
     first_name AS имя,
@@ -177,6 +215,8 @@ SELECT
 FROM bakery_db.workers
 ORDER BY second_name;
 ![]()
+
+![alt text](image-19.png)
 
 ## 11. LIKE
 
@@ -189,11 +229,15 @@ FROM bakery_db.clients
 WHERE last_name LIKE '%ов';
 ![]()
 
+![alt text](image-20.png)
+
 ### б) Товары, название которых начинается на “Пир”
 SELECT name, size
 FROM bakery_db.baking_goods
 WHERE name LIKE 'Пир%';
 ![]()
+
+![alt text](image-21.png)
 
 ## 12. Уникальные элементы столбца
 
@@ -202,10 +246,14 @@ SELECT DISTINCT role AS должность
 FROM bakery_db.workers;
 ![]()
 
+![alt text](image-22.png)
+
 ### б) Уникальные названия техники
 SELECT DISTINCT name AS техника
 FROM bakery_db.appliances;
 ![]()
+
+![alt text](image-23.png)
 
 ## 13. Ограничение количества строк
 
@@ -216,7 +264,8 @@ SELECT
 FROM bakery_db.ingredients
 ORDER BY calories DESC
 LIMIT 3;
-![]()
+
+![alt text](image-24.png)
 
 ### б) 5 самых молодых работников
 SELECT 
@@ -226,31 +275,35 @@ SELECT
 FROM bakery_db.workers
 ORDER BY date_of_birth DESC
 LIMIT 5;
-![]()
+![alt text](image-25.png)
 
 ## 14. INNER JOIN
 
 ### а) Работники с id, должностями и пекарнями
 SELECT worker_id, role, bakeries.address FROM bakery_db.workers
 INNER JOIN bakery_db.bakeries ON workers.bakery_id = bakeries.bakery_id;
-![]()
+
+![alt text](image-26.png)
 
 ### б) Доставки с курьерами
 SELECT delivery_id, order_id, couriers.phone_number, couriers.first_name FROM bakery_db.delivery_orders
 INNER JOIN bakery_db.couriers ON delivery_orders.courier_id = couriers.courier_id;
-![]()
+
+![alt text](image-27.png)
 
 ## 15. LEFT / RIGHT OUTER JOIN
 
 ### а) Все рецепты и связанные ингредиенты
 SELECT recipes.recipe_id, description, recipes_ingredients.ingredient_id, recipes_ingredients.quantity FROM bakery_db.recipes
 LEFT JOIN bakery_db.recipes_ingredients ON recipes.recipe_id = recipes_ingredients.recipe_id;
-![]()
+
+![alt text](image-28.png)
 
 ### б) Все кухонные приборы с адресом пекарни
 SELECT bakeries.bakery_id, bakeries.address, appliances.name FROM bakery_db.bakeries
 RIGHT JOIN bakery_db.appliances ON bakeries.bakery_id = appliances.bakery_id;
-![]()
+
+![alt text](image-29.png)
 
 ## 16. CROSS JOIN
 
