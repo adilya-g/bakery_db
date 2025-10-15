@@ -307,12 +307,7 @@ RIGHT JOIN bakery_db.appliances ON bakeries.bakery_id = appliances.bakery_id;
 
 ## 16. CROSS JOIN
 
-### а) Все комбинации клиентов и заказов
-SELECT first_name, order_id
-FROM bakery_db.clients, bakery_db.orders;
-![]()
-
-### б) Все ингредиенты × все единицы измерения
+### а) Все ингредиенты × все единицы измерения
 SELECT 
     i.ingredient_id,
     i.name AS ingredient_name,
@@ -320,26 +315,40 @@ SELECT
     u.unit_name
 FROM bakery_db.ingredients i
 CROSS JOIN bakery_db.units u;
-![]()
+![](img/16a.png)
+![](img/16a2.png)
+
+### б) Все рецепты × все пекарни с оборудованием - проверить, какие рецепты можно приготовить в какой пекарне, если учитывать наличие оборудования.
+SELECT 
+    i.ingredient_id,
+    i.name AS ingredient_name,
+    u.unit_id,
+    u.unit_name
+FROM bakery_db.ingredients i
+CROSS JOIN bakery_db.units u;
+![](img/16b.png)
 
 ## 17. Запросы из нескольких таблиц
 
-### а) Клиенты с курьером и адресом доставки
+### а) Показывает клиента с адресом на доставку, id, номером телефона, именем и номером телефона курьера
+
 SELECT clients.client_id, clients.first_name, clients.phone_number AS client_number, delivery_orders.address, couriers.phone_number AS courier_number FROM bakery_db.clients
 INNER JOIN bakery_db.orders ON orders.client_id = clients.client_id
 INNER JOIN bakery_db.delivery_orders ON orders.order_id = delivery_orders.order_id
-INNER JOIN bakery_db.couriers ON delivery_orders.courier_id = couriers.courier_id;
-![]()
+INNER JOIN bakery_db.couriers ON delivery_orders.courier_id = couriers.courier_id
 
-### б) Рецепты с ингредиентами и единицами измерения
-SELECT 
-    r.recipe_id,
-    r.description AS recipe_name,
-    i.name AS ingredient_name,
-    ri.quantity,
-    u.unit_name
+
+![](img/17a.png)
+
+### б) Для каждого рецепта выводит все ингредиенты с количеством и единицей измерения
+SELECT 
+    r.recipe_id,
+    r.description AS recipe_name,
+    i.name AS ingredient_name,
+    ri.quantity,
+    u.unit_name
 FROM bakery_db.recipes r
 INNER JOIN bakery_db.recipes_ingredients ri ON r.recipe_id = ri.recipe_id
 INNER JOIN bakery_db.ingredients i ON ri.ingredient_id = i.ingredient_id
 INNER JOIN bakery_db.units u ON ri.unit_id = u.unit_id;
-![]()
+![](img/17b.png)
