@@ -351,3 +351,24 @@ INSERT INTO bakery_db.recipes_appliances (recipe_id, appliance_id) VALUES
 (3, 1), (3, 6),
 (4, 1), (4, 2),
 (5, 1), (5, 6);
+
+-- Добавляем столбец цен в рублях и обновляем предыдущую информацию
+ALTER TABLE bakery_db.baking_goods
+ADD COLUMN price INT;
+
+UPDATE bakery_db.baking_goods
+SET price = CASE
+    WHEN name = 'Хлеб пшеничный' THEN 80
+    WHEN name = 'Булочка сдобная' THEN 40
+    WHEN name = 'Торт шоколадный' THEN 600
+    WHEN name = 'Пирожок с капустой' THEN 50
+    WHEN name = 'Печенье овсяное' THEN 35
+    WHEN name = 'Кекс изюмный' THEN 120
+    WHEN name = 'Пирог яблочный' THEN 300
+    WHEN name = 'Батон нарезной' THEN 70
+    WHEN name = 'Рогалик слоеный' THEN 45
+    WHEN name = 'Пончик' THEN 55
+END;
+
+ALTER TABLE bakery_db.baking_goods
+ALTER COLUMN price SET NOT NULL;
