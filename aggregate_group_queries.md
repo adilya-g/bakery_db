@@ -11,6 +11,7 @@ SELECT COUNT(*) AS всего_работников
 FROM bakery_db.workers;
 ```
 ![result](img/count2.png)
+
 2. SUM()
 
 а) Общий вес всех товаров
@@ -19,12 +20,14 @@ SELECT SUM(size) AS общий_вес_товаров
 FROM bakery_db.baking_goods;
 ```
 ![result](img/sum1.png)
+
 б) Общая сумма калорий всех ингредиентов
 ```
 SELECT SUM(calories) AS общая_сумма_калорий
 FROM bakery_db.ingredients;
 ```
 ![result](img/sum2.png)
+
 3. AVG
 
 а) Средняя калорийность ингредиентов
@@ -48,12 +51,14 @@ SELECT MIN(date_of_birth) AS самый_молодой
 FROM bakery_db.workers;
 ```
 ![result](img/min1.png)
+
 б) минимальный вес товара
 ```
 SELECT MIN(size) AS минимальный_вес_товара
 FROM bakery_db.baking_goods;
 ```
 ![result](img/min2.png)
+
 5. MAX
 
 а) самый старщий работник
@@ -62,6 +67,7 @@ SELECT MAX(date_of_birth) AS самый_старший
 FROM bakery_db.workers;
 ```
 ![result](img/max1.png)
+
 б) максимальный вес товара
 ```
 SELECT MAX(size) AS максимальный_вес_товара
@@ -77,6 +83,7 @@ SELECT STRING_AGG(name, ', ') AS все_ингредиенты
 FROM bakery_db.ingredients;
 ```
 ![result](img/string1.png)
+
 б)Список названий пекарен через точку с запятой
 ```
 SELECT STRING_AGG(name, '; ') AS все_пекарни
@@ -118,6 +125,7 @@ HAVING COUNT(*) > 1
 ORDER BY количество DESC;
 ```
 ![result](img/having1.png)
+
 б) заказы с более чем одной выпечкой
 ```
 select
@@ -129,6 +137,7 @@ group by order_id
 having (count(*) > 1);
 ```
 ![result](img/having2.png)
+
 9. GROUPING SETS
 
 a) Сколько изделий продано по пекарням и определенному типу заказа, только по пекарне, и только по определенному типу заказа
