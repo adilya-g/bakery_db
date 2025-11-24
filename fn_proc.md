@@ -106,6 +106,7 @@ $$;
 SELECT is_high_calorie_ingredient(1);
  ```
 ![alt text](img/func11.png)
+
 2) Количество заказов у клиента
   ```
 CREATE OR REPLACE FUNCTION quantity_of_orders(p_client_id INT)
@@ -122,7 +123,8 @@ END;
 $$;
  ```
 ![alt text](img/func12.png)
-3) Вывол полного имени клиента
+
+3) Вывод полного имени клиента
  ```
 CREATE OR REPLACE FUNCTION get_client_full_name(p_client_id INT)
 RETURNS VARCHAR
@@ -168,6 +170,7 @@ $$;
 select get_order_total(5);
  ```
 ![alt text](img/func1.png)
+
 2) Проверка - у клиента день рождения в этом месяце
   ```
 CREATE OR REPLACE FUNCTION is_birthday_this_month(
@@ -197,6 +200,7 @@ FROM bakery_db.clients
 WHERE EXTRACT(MONTH FROM birth_date) = EXTRACT(MONTH FROM CURRENT_DATE);
  ```
 ![alt text](img/func2.png)
+
 3) Получение самого популярного изделия по пекарне
  ```
 CREATE OR REPLACE FUNCTION get_bakery_top_good(p_bakery_id INT)
