@@ -242,46 +242,110 @@ WHERE routine_type = 'FUNCTION' AND routine_schema = 'public';
 
 1) 
  ```
---
+do $$
+begin 
+	if not exists (select 1 from bakery_db.clients where phone_number = '89398083129') then 
+	insert into bakery_db.clients(phone_number, last_name, first_name, middle_name)
+	values ('89398083129', 'Вафина', 'Адиля', 'Абдулкадыровна');
+	end if;
+end $$ language plpgsql;
+
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/do_1.png)
 2)
   ```
---
+do $$
+begin 
+	if exists (select 1 from bakery_db.bakeries where bakery_id = 7) then 
+	insert into bakery_db.appliances(bakery_id, name, document)
+	values (7, 'Миксер', 'Гарантия');
+	end if;
+end $$ language plpgsql;
+
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/do_2.png)
 3)
  ```
---
+do $$
+begin 
+	if not exists (select 1 from bakery_db.ingredients where name = 'Творог') then 
+	insert into bakery_db.ingredients(name, calories, proteins, fats, carbohydrates)
+	values ('Творог', 159, 18, 0.5, 3.3);
+	end if;
+end $$ language plpgsql;
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/do_3.png)
 ### IF
 
 1) 
  ```
---
+DO $$
+DECLARE
+    client_age int;
+BEGIN
+    SELECT EXTRACT(YEAR FROM AGE(birth_date)) INTO client_age
+    FROM bakery_db.clients
+    WHERE client_id = 12;
+
+    IF client_age >= 18 THEN
+        RAISE NOTICE 'Клиент совершеннолетний: возраст %', client_age;
+    ELSE
+        RAISE NOTICE 'Клиент несовершеннолетний: возраст %', client_age;
+    END IF;
+END $$ LANGUAGE plpgsql;
+
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/do_4.png)
 ### CASE
 
 1) 
  ```
---
+DO $$
+DECLARE
+    rec record;
+    generation text;
+BEGIN
+    FOR rec IN SELECT client_id, birth_date FROM bakery_db.clients LOOP
+
+        generation := CASE
+            WHEN rec.birth_date BETWEEN DATE '1946-01-01' AND DATE '1964-12-31' THEN 'Бумеры'
+            WHEN rec.birth_date BETWEEN DATE '1965-01-01' AND DATE '1980-12-31' THEN 'Поколение X'
+            WHEN rec.birth_date BETWEEN DATE '1981-01-01' AND DATE '1996-12-31' THEN 'Миллениалы'
+            WHEN rec.birth_date BETWEEN DATE '1997-01-01' AND DATE '2012-12-31' THEN 'Поколение Z'
+            WHEN rec.birth_date >= DATE '2013-01-01' THEN 'Поколение Alpha'
+            ELSE 'Неизвестно'
+        END;
+
+        RAISE NOTICE 'Клиент % → %', rec.client_id, generation;
+
+    END LOOP;
+END $$ LANGUAGE plpgsql;
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/do_5.png)
 
 ### WHILE
 
 1) 
  ```
---
+DO $$
+DECLARE
+    rec RECORD;
+    group_num INT := 0;
+BEGIN
+    FOR rec IN SELECT client_id, first_name FROM bakery_db.clients ORDER BY client_id LOOP
+        group_num := ((group_num) % 5) + 1;  -- распределяем по 5 группам
+        RAISE NOTICE '% → группа %', rec.first_name, group_num;
+    END LOOP;
+END $$ LANGUAGE plpgsql;
  ```
-![alt text](img/sub_queries-1.png)
+
+![alt text](img/do_6.png)
+
 2)
   ```
 --
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/do_7.png)
 
 ### EXCEPTION
 
