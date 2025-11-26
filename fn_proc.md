@@ -240,7 +240,7 @@ WHERE routine_type = 'FUNCTION' AND routine_schema = 'public';
     
 ### Блок DO 
 
-1) 
+1) Добавляем нового клиента
  ```
 do $$
 begin 
@@ -252,7 +252,7 @@ end $$ language plpgsql;
 
  ```
 ![alt text](img/do_1.png)
-2)
+2) Добавляем технику (только если существует нужная пекарня)
   ```
 do $$
 begin 
@@ -264,7 +264,7 @@ end $$ language plpgsql;
 
  ```
 ![alt text](img/do_2.png)
-3)
+3) Добавляем новый ингредиент
  ```
 do $$
 begin 
@@ -277,7 +277,7 @@ end $$ language plpgsql;
 ![alt text](img/do_3.png)
 ### IF
 
-1) 
+1) Определяем совершеннолетний ли клиент с id = 12
  ```
 DO $$
 DECLARE
@@ -298,7 +298,7 @@ END $$ LANGUAGE plpgsql;
 ![alt text](img/do_4.png)
 ### CASE
 
-1) 
+1) Распределяем клиентов по поколенеиям
  ```
 DO $$
 DECLARE
@@ -325,25 +325,76 @@ END $$ LANGUAGE plpgsql;
 
 ### WHILE
 
-1) 
+1) Применяем скидки по категориям (повседневный или праздничный)
  ```
 DO $$
 DECLARE
-    rec RECORD;
-    group_num INT := 0;
+    category TEXT;
+    discount_rate NUMERIC;
+    product_id INT := 1;
+    max_id INT;
 BEGIN
-    FOR rec IN SELECT client_id, first_name FROM bakery_db.clients ORDER BY client_id LOOP
-        group_num := ((group_num) % 5) + 1;  -- распределяем по 5 группам
-        RAISE NOTICE '% → группа %', rec.first_name, group_num;
+    SELECT MAX(baking_id) INTO max_id FROM bakery_db.baking_goods;
+    
+    WHILE product_id <= max_id LOOP
+        -- Определяем категорию и скидку
+        SELECT 
+            CASE 
+                WHEN name LIKE '%Торт%' OR name LIKE '%Пирог%' THEN 'праздничный'
+                WHEN name LIKE '%Хлеб%' OR name LIKE '%Батон%' THEN 'повседневный'
+                ELSE 'прочее'
+            END INTO category
+        FROM bakery_db.baking_goods WHERE baking_id = product_id;
+        
+        discount_rate := CASE 
+            WHEN category = 'праздничный' THEN 0.15  -- 15% скидка
+            WHEN category = 'повседневный' THEN 0.10 -- 10% скидка
+            ELSE 0.05                                -- 5% скидка
+        END;
+        
+        UPDATE bakery_db.baking_goods 
+        SET price = price * (1 - discount_rate)
+        WHERE baking_id = product_id;
+        
+        RAISE NOTICE 'Товар ID %: применена скидка %', product_id, discount_rate;
+        product_id := product_id + 1;
     END LOOP;
-END $$ LANGUAGE plpgsql;
+END $$;
  ```
 
 ![alt text](img/do_6.png)
 
-2)
+2) Определяем весовую категорию товара
   ```
---
+DO $$
+DECLARE 
+    id INT := 1;
+    total INT;
+    product_size INT;
+    category TEXT;
+BEGIN
+    SELECT MAX(baking_id) INTO total FROM bakery_db.baking_goods;
+
+    WHILE id <= total LOOP
+        SELECT size INTO product_size 
+        FROM bakery_db.baking_goods 
+        WHERE baking_id = id;
+        
+        IF product_size <= 100 THEN
+            category := 'Малый';
+        ELSIF product_size <= 300 THEN
+            category := 'Средний';
+        ELSIF product_size <= 600 THEN
+            category := 'Крупный';
+        ELSE
+            category := 'Очень крупный';
+        END IF;
+        
+        RAISE NOTICE 'Товар ID %: %', id, category;
+        
+        id := id + 1;
+    END LOOP;
+END $$;
  ```
 ![alt text](img/do_7.png)
 
