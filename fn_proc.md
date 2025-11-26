@@ -402,25 +402,85 @@ END $$;
 
 1) 
  ```
---
+ DO $$
+DECLARE
+    v_recipe_id INT := 999;
+    v_description TEXT;
+BEGIN
+    SELECT description INTO STRICT v_description
+    FROM bakery_db.recipes
+    WHERE recipe_id = v_recipe_id;
+
+    RAISE NOTICE 'Рецепт найден: %', v_description;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RAISE NOTICE 'Рецепт с ID=% не существует.', v_recipe_id;
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Неизвестная ошибка при поиске рецепта ID=%: %', v_recipe_id, SQLERRM;
+END $$ LANGUAGE plpgsql;
+
  ```
-![alt text](img/sub_queries-1.png)
-2)
+![alt text](img/exc1.png)
+2) Пытаемся добавить заказ на несуществующее изделие (например, baking_id = 999)
+
   ```
---
+DO $$
+BEGIN
+    INSERT INTO bakery_db.order_baking_goods (order_id, baking_id, quantity, unit_id)
+    VALUES (1, 999, 2, 3);  
+EXCEPTION
+    WHEN foreign_key_violation THEN
+        RAISE NOTICE 'Ошибка: хлебобулочное изделие с ID=999 не найдено в каталоге.';
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Произошла неожиданная ошибка при добавлении позиции в заказ.';
+END $$ LANGUAGE plpgsql;
+
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/exc2.png)
 
 ### RAISE
 
-1) 
+1) Выводим количество курьеров и клиентов в системе
  ```
---
+DO $$
+DECLARE
+    client_count INT;
+    courier_count INT;
+BEGIN
+    SELECT COUNT(*) INTO client_count FROM bakery_db.clients;
+    SELECT COUNT(*) INTO courier_count FROM bakery_db.couriers;
+
+    RAISE NOTICE 'В базе данных % клиентов и % курьеров.', client_count, courier_count;
+END $$ LANGUAGE plpgsql;
+
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/raise1.png)
 2)
   ```
---
+DO $$
+DECLARE
+    v_courier_id INT := 999;
+    v_new_phone VARCHAR(11) := '79991234567';
+    affected_rows INT;
+BEGIN
+    UPDATE bakery_db.couriers
+    SET phone_number = v_new_phone
+    WHERE courier_id = v_courier_id;
+
+    GET DIAGNOSTICS affected_rows = ROW_COUNT;
+
+    IF affected_rows = 0 THEN
+        RAISE EXCEPTION 'Курьер с ID=% не найден. Обновление невозможно.', v_courier_id;
+    END IF;
+
+    RAISE NOTICE 'Телефон курьера % успешно обновлён.', v_courier_id;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Не удалось обновить данные курьера с ID=%.', v_courier_id;
+END $$ LANGUAGE plpgsql;
+
  ```
-![alt text](img/sub_queries-1.png)
+![alt text](img/raise2.png)
 
