@@ -4,7 +4,7 @@
 
 ### NEW
 1)  Проверка на кбжу ингредиента > 0  при insert
- ```
+ ```sql
 -- функция
 CREATE OR REPLACE FUNCTION check_valid_ingredient()
 RETURNS TRIGGER AS $$
@@ -27,7 +27,8 @@ EXECUTE FUNCTION check_valid_ingredient();
 ![alt text](img/trigger1.png)
 
 2) Проверка на цену изделия при update
- ```
+ ```sql
+-- функция
 CREATE OR REPLACE FUNCTION check_valid_price()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -40,6 +41,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- триггер
 CREATE TRIGGER before_update_baking_goods
 BEFORE UPDATE ON bakery_db.baking_goods
 FOR EACH ROW
@@ -50,7 +52,8 @@ EXECUTE FUNCTION check_valid_price();
 ### OLD
 
 3) Сохранение изменения цены выпечки в таблице price_history
- ```
+ ```sql
+-- создание таблицы
 CREATE TABLE IF NOT EXISTS bakery_db.price_history (
     log_id SERIAL PRIMARY KEY,
     baking_id INT,
@@ -58,6 +61,7 @@ CREATE TABLE IF NOT EXISTS bakery_db.price_history (
     new_price INT
 );
 
+-- функция
 CREATE OR REPLACE FUNCTION bakery_db.log_price_change()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -68,14 +72,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+-- триггер
 CREATE TRIGGER trigger_log_price_change
 AFTER UPDATE ON bakery_db.baking_goods
 FOR EACH ROW
 WHEN (OLD.price IS DISTINCT FROM NEW.price)
 EXECUTE FUNCTION bakery_db.log_price_change();
 
-
+-- запрос 
 update bakery_db.baking_goods
 set price = 50
 where baking_id = 1;
@@ -83,7 +87,8 @@ where baking_id = 1;
 ![alt text](img/trigger_old1.png)
 
 4) Сохранение удаленных заказов в таблице deleted_orders
- ```
+ ```sql
+-- создание таблицы
 CREATE TABLE IF NOT EXISTS bakery_db.deleted_orders (
     archive_id SERIAL PRIMARY KEY,
     order_id INT,
@@ -93,6 +98,7 @@ CREATE TABLE IF NOT EXISTS bakery_db.deleted_orders (
     deleted_at TIMESTAMP DEFAULT NOW()
 );
 
+-- функция
 CREATE OR REPLACE FUNCTION bakery_db.archive_deleted_order()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -103,6 +109,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- триггер
 CREATE TRIGGER trigger_archive_order
 AFTER DELETE ON bakery_db.orders
 FOR EACH ROW
@@ -115,7 +122,8 @@ delete from bakery_db.orders where order_id = 5;
 ### BEFORE
 
 5) Валидация номера телефона - начинается с 7 и состоит из 11 цифр
- ```
+ ```sql
+-- функция
 CREATE OR REPLACE FUNCTION bakery_db.validate_worker_phone()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -128,6 +136,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- триггер
 CREATE TRIGGER trigger_validate_phone
 BEFORE INSERT OR UPDATE ON bakery_db.workers
 FOR EACH ROW
@@ -136,7 +145,8 @@ EXECUTE FUNCTION bakery_db.validate_worker_phone();
 ![alt text](img/trigger_before1.png)
 
 6) Проверка возраста работника - что он совершеннолетний, и его дата рождения не в будущем.
- ```
+ ```sql
+-- функция
 CREATE OR REPLACE FUNCTION bakery_db.check_worker_age()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -152,6 +162,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- триггер
 CREATE TRIGGER trigger_check_worker_age
 BEFORE INSERT OR UPDATE ON bakery_db.workers
 FOR EACH ROW
@@ -162,7 +173,7 @@ EXECUTE FUNCTION bakery_db.check_worker_age();
 
 ### AFTER
 
-7) Лгирование изменения адресов пекарен
+7) Логирование изменения адресов пекарен
  ``` sql
  --функция
 CREATE OR REPLACE FUNCTION log_address_changes()
@@ -234,7 +245,7 @@ values (1, 31, 'Самовывоз')
 ![alt text](img/trigger_crons_8.png)
 
 ### ROW-LEVEL
-9) Логирование добавления сторудника
+9) Логирование добавления сотрудника
  ```sql
  --функция
 CREATE OR REPLACE FUNCTION log_worker_insert()
@@ -377,9 +388,10 @@ DELETE FROM bakery_db.workers WHERE bakery_id = 31;
 ### Список триггеров
 13)
  ```
-
+SELECT *
+FROM information_schema.triggers;
 ```
-![alt text](img/.png)
+![alt text](img/triggers_part.png)
 
 
 ### Кроны
