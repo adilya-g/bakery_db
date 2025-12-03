@@ -395,34 +395,80 @@ FROM information_schema.triggers;
 
 
 ### Кроны
-14)
+14) Чистка старых удалённых заказов
  ```
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- задача: каждый день в 03:00 удалять из архива заказов записи старше 30 дней
+SELECT cron.schedule(
+    'cleanup_deleted_orders',          
+    '0 3 * * *',                      
+    $$
+    DELETE FROM bakery_db.deleted_orders
+    WHERE deleted_at < now() - interval '30 days';
+    $$
+);
+```
+![alt text](img/.png)
+
+15) Автоматически повышаем «Пекаря» до «Старшего пекаря» по возрасту
+ ```
+SELECT cron.schedule(
+    'promote_senior_bakers',           
+    '30 0 * * *',                     
+    $$
+    UPDATE bakery_db.workers
+    SET role = 'Старший пекарь'
+    WHERE date_of_birth < current_date - INTERVAL '50 years'
+      AND role = 'Пекарь';
+    $$
+);
 
 ```
 ![alt text](img/.png)
 
-15) 
+16) Ночная индексация цен
  ```
-
-```
-![alt text](img/.png)
-
-16) 
- ```
-
+-- каждый день в 01:00 увеличиваем цены на 5%
+SELECT cron.schedule(
+    'nightly_increase_baking_prices',
+    '0 1 * * *',
+    $$
+    UPDATE bakery_db.baking_goods
+    SET price = round(price * 1.05); 
+    $$
+);
 ```
 ![alt text](img/.png)
 
 ### Запрос на просмотр выполнения кронов
 17)
  ```
+SELECT
+    jobid,
+    jobname,
+    status,
+    run_start,
+    run_end,
+    return_message
+FROM cron.job_run_details
+ORDER BY run_start DESC
+LIMIT 50;
 
 ```
 ![alt text](img/.png)
 
-### Запрос на просмотр кронов
+### Запрос на просмотр списка кронов
 18)
  ```
+SELECT
+    jobid,
+    jobname,
+    schedule,
+    command,
+    active
+FROM cron.job
+ORDER BY jobid;
 
 ```
 ![alt text](img/.png)
