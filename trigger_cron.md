@@ -3,48 +3,177 @@
 ## Триггеры
 
 ### NEW
-1) 
- ```
+1)  Проверка на кбжу ингредиента > 0  при insert
+ ```sql
+-- функция
+CREATE OR REPLACE FUNCTION check_valid_ingredient()
+RETURNS TRIGGER AS $$
+BEGIN
+
+	IF NEW.carbohydrates < 0 or NEW.calories < 0 or NEW.fats < 0 or NEW.proteins < 0 THEN
+	RAISE EXCEPTION 'Кбжу ингредиента не может быть отрицательным.';
+	END IF;
+	
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- триггер
+CREATE TRIGGER before_insert_ingredient
+BEFORE INSERT ON bakery_db.ingredients
+FOR EACH ROW
+EXECUTE FUNCTION check_valid_ingredient();
+```
+![alt text](img/trigger1.png)
+
+2) Проверка на цену изделия при update
+ ```sql
+-- функция
+CREATE OR REPLACE FUNCTION check_valid_price()
+RETURNS TRIGGER AS $$
+BEGIN
+
+	IF NEW.price < 0 or NEW.price > 50000 THEN
+	RAISE EXCEPTION 'Цена продукта неверна.';
+	END IF;
+	
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- триггер
+CREATE TRIGGER before_update_baking_goods
+BEFORE UPDATE ON bakery_db.baking_goods
+FOR EACH ROW
+EXECUTE FUNCTION check_valid_price();
 
 ```
-![alt text](img/.png)
-
-2) 
- ```
-
-```
-![alt text](img/.png)
+![alt text](img/trigger2.png)
 ### OLD
 
-3) 
- ```
+3) Сохранение изменения цены выпечки в таблице price_history
+ ```sql
+-- создание таблицы
+CREATE TABLE IF NOT EXISTS bakery_db.price_history (
+    log_id SERIAL PRIMARY KEY,
+    baking_id INT,
+    old_price INT,
+    new_price INT
+);
 
+-- функция
+CREATE OR REPLACE FUNCTION bakery_db.log_price_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO bakery_db.price_history (baking_id, old_price, new_price)
+    VALUES (OLD.baking_id, OLD.price, NEW.price);
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- триггер
+CREATE TRIGGER trigger_log_price_change
+AFTER UPDATE ON bakery_db.baking_goods
+FOR EACH ROW
+WHEN (OLD.price IS DISTINCT FROM NEW.price)
+EXECUTE FUNCTION bakery_db.log_price_change();
+
+-- запрос 
+update bakery_db.baking_goods
+set price = 50
+where baking_id = 1;
 ```
-![alt text](img/.png)
+![alt text](img/trigger_old1.png)
 
-4) 
- ```
+4) Сохранение удаленных заказов в таблице deleted_orders
+ ```sql
+-- создание таблицы
+CREATE TABLE IF NOT EXISTS bakery_db.deleted_orders (
+    archive_id SERIAL PRIMARY KEY,
+    order_id INT,
+    client_id INT,
+    bakery_id INT,
+    type_of_order VARCHAR(50),
+    deleted_at TIMESTAMP DEFAULT NOW()
+);
 
+-- функция
+CREATE OR REPLACE FUNCTION bakery_db.archive_deleted_order()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO bakery_db.deleted_orders (order_id, client_id, bakery_id, type_of_order)
+    VALUES (OLD.order_id, OLD.client_id, OLD.bakery_id, OLD.type_of_order);
+    
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- триггер
+CREATE TRIGGER trigger_archive_order
+AFTER DELETE ON bakery_db.orders
+FOR EACH ROW
+EXECUTE FUNCTION bakery_db.archive_deleted_order();
+
+delete from bakery_db.orders where order_id = 5; 
 ```
-![alt text](img/.png)
+![alt text](img/trigger_old2.png)
 
 ### BEFORE
 
-5) 
- ```
+5) Валидация номера телефона - начинается с 7 и состоит из 11 цифр
+ ```sql
+-- функция
+CREATE OR REPLACE FUNCTION bakery_db.validate_worker_phone()
+RETURNS TRIGGER AS $$
+BEGIN
+
+    IF NEW.phone_number !~ '^7[0-9]{10}$' THEN
+        RAISE EXCEPTION 'Неверный формат телефона: %. Ожидается формат: 7XXXXXXXXXX', NEW.phone_number;
+    END IF;
+    RETURN NEW;
+    
+END;
+$$ LANGUAGE plpgsql;
+
+-- триггер
+CREATE TRIGGER trigger_validate_phone
+BEFORE INSERT OR UPDATE ON bakery_db.workers
+FOR EACH ROW
+EXECUTE FUNCTION bakery_db.validate_worker_phone();
+```
+![alt text](img/trigger_before1.png)
+
+6) Проверка возраста работника - что он совершеннолетний, и его дата рождения не в будущем.
+ ```sql
+-- функция
+CREATE OR REPLACE FUNCTION bakery_db.check_worker_age()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.date_of_birth > CURRENT_DATE THEN
+        RAISE EXCEPTION 'Дата рождения не может быть в будущем! (%s)', NEW.date_of_birth;
+    END IF;
+
+    IF NEW.date_of_birth > (CURRENT_DATE - INTERVAL '18 years') THEN
+        RAISE EXCEPTION 'Сотрудник слишком молод. Минимальный возраст - 18 лет. (Дата рождения: %)', NEW.date_of_birth;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- триггер
+CREATE TRIGGER trigger_check_worker_age
+BEFORE INSERT OR UPDATE ON bakery_db.workers
+FOR EACH ROW
+EXECUTE FUNCTION bakery_db.check_worker_age();
 
 ```
-![alt text](img/.png)
-
-6) 
- ```
-
-```
-![alt text](img/.png)
+![alt text](img/trigger_before2.png)
 
 ### AFTER
 
-7) Лгирование изменения адресов пекарен
+7) Логирование изменения адресов пекарен
  ``` sql
  --функция
 CREATE OR REPLACE FUNCTION log_address_changes()
@@ -116,7 +245,7 @@ values (1, 31, 'Самовывоз')
 ![alt text](img/trigger_crons_8.png)
 
 ### ROW-LEVEL
-9) Логирование добавления сторудника
+9) Логирование добавления сотрудника
  ```sql
  --функция
 CREATE OR REPLACE FUNCTION log_worker_insert()
@@ -259,40 +388,87 @@ DELETE FROM bakery_db.workers WHERE bakery_id = 31;
 ### Список триггеров
 13)
  ```
-
+SELECT *
+FROM information_schema.triggers;
 ```
-![alt text](img/.png)
+![alt text](img/triggers_part.png)
 
 
 ### Кроны
-14)
+14) Чистка старых удалённых заказов
  ```
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- задача: каждый день в 03:00 удалять из архива заказов записи старше 30 дней
+SELECT cron.schedule(
+    'cleanup_deleted_orders',          
+    '0 3 * * *',                      
+    $$
+    DELETE FROM bakery_db.deleted_orders
+    WHERE deleted_at < now() - interval '30 days';
+    $$
+);
+```
+![alt text](img/.png)
+
+15) Автоматически повышаем «Пекаря» до «Старшего пекаря» по возрасту
+ ```
+SELECT cron.schedule(
+    'promote_senior_bakers',           
+    '30 0 * * *',                     
+    $$
+    UPDATE bakery_db.workers
+    SET role = 'Старший пекарь'
+    WHERE date_of_birth < current_date - INTERVAL '50 years'
+      AND role = 'Пекарь';
+    $$
+);
 
 ```
 ![alt text](img/.png)
 
-15) 
+16) Ночная индексация цен
  ```
-
-```
-![alt text](img/.png)
-
-16) 
- ```
-
+-- каждый день в 01:00 увеличиваем цены на 5%
+SELECT cron.schedule(
+    'nightly_increase_baking_prices',
+    '0 1 * * *',
+    $$
+    UPDATE bakery_db.baking_goods
+    SET price = round(price * 1.05); 
+    $$
+);
 ```
 ![alt text](img/.png)
 
 ### Запрос на просмотр выполнения кронов
 17)
  ```
+SELECT
+    jobid,
+    jobname,
+    status,
+    run_start,
+    run_end,
+    return_message
+FROM cron.job_run_details
+ORDER BY run_start DESC
+LIMIT 50;
 
 ```
 ![alt text](img/.png)
 
-### Запрос на просмотр кронов
+### Запрос на просмотр списка кронов
 18)
  ```
+SELECT
+    jobid,
+    jobname,
+    schedule,
+    command,
+    active
+FROM cron.job
+ORDER BY jobid;
 
 ```
 ![alt text](img/.png)
