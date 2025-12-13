@@ -124,7 +124,7 @@
     GROUP BY name, address
     HAVING LENGTH(name) = (SELECT MAX(LENGTH(name)) FROM bakeries);
     ```
-
+ ![alt text](img/sub_queries-12.png)
 ### IN
 1) Клиенты, которые делали заказ в пекарне №2
     ```
@@ -135,7 +135,7 @@
     FROM bakery_db.orders
     WHERE bakery_id = 2);
     ```
-
+![alt text](img/sub_queries-13.png)
 2) Выпечка требующая запекания
     ```
 	SELECT baking_id, name  FROM bakery_db.baking_goods
@@ -146,6 +146,7 @@
         INNER JOIN bakery_db.appliances ON recipes_appliances.appliance_id = appliances.appliance_id
         WHERE appliances.name LIKE '%Печь%');
     ```
+![alt text](img/sub_queries-14.png)
 
 3) Занятые курьеры
     ```
@@ -153,6 +154,7 @@
     FROM BAKERY_DB.COURIERS
     WHERE COURIER_ID IN (SELECT COURIER_ID FROM BAKERY_DB.DELIVERY_ORDERS);
     ```
+![alt text](img/sub_queries-15.png)
 
 ### ALL
 1) Проверка, что все клиенты совершеннолетние
@@ -162,6 +164,8 @@
     FROM bakery_db.clients
     );
     ```
+   ![alt text](img/sub_queries-16.png)
+
 2) Проверка, что все работники совершеннолетние
 
     ```
@@ -170,7 +174,7 @@
     FROM bakery_db.workers
     );
     ```
-
+   ![alt text](img/sub_queries-17.png)
 3) Минимальные по жиру ингредиенты
 
     ```
@@ -179,7 +183,7 @@
     where fats <=  all(SELECT fats
     from bakery_db.ingredients);
     ```
-
+   ![alt text](img/sub_queries-18.png)
 
 
 
@@ -192,7 +196,7 @@
     FROM bakery_db.clients
     );
     ```
-
+   ![alt text](img/sub_queries-19.png)
 2) Проверка есть ли пекарь
 
     ```
@@ -201,7 +205,7 @@
     FROM bakery_db.workers
     );
     ```
-
+   ![alt text](img/sub_queries-20.png)
 
 
 3) Проверка, есть ли хотя бы 1 заказ в пекарню с id=1
@@ -211,6 +215,7 @@
     select 1 = ANY(select bakery_id from bakery_db.orders);
     ```
 
+![alt text](img/sub_queries-21.png)
 
 
 ### EXISTS
@@ -221,6 +226,7 @@
     WHERE EXISTS
     (SELECT * FROM bakery_db.order_baking_goods WHERE order_baking_goods.baking_id  = baking_goods.baking_id );
     ```
+![alt text](img/sub_queries-22.png)
 
 2) Ищет, есть ли среди техники дрель
 
@@ -228,6 +234,7 @@
     select * from appliances
     where exists (select document from bakery_db.appliances where name = 'Дрель');
     ```
+![alt text](img/sub_queries-23.png)
 
 3) Какие клиенты сделали заказ на доставку
 
@@ -235,6 +242,7 @@
     select * from bakery_db.clients
     where exists (select * from bakery_db.orders where (clients.client_id = orders.client_id) and type_of_order = 'Доставка');
     ```
+![alt text](img/sub_queries-24.png)
 
 
 ### СРАВНЕНИЕ ПО НЕСКОЛЬКИМ СТОЛБЦАМ
@@ -249,6 +257,7 @@
     WHERE a2.bakery_id = 5
     );
     ```
+![alt text](img/sub_queries-25.png)
 
 
 2) Клиенты родившиеся в 1992 году
@@ -263,6 +272,7 @@
     );
     ```
 
+![alt text](img/sub_queries-26.png)
 
 
 3) Курьеры, чья фамилия начинается на “К”
@@ -277,6 +287,7 @@
     );
     ```
 
+![alt text](img/sub_queries-27.png)
 
 ### КОРРЕЛИРОВАННЫЕ ПОДЗАПРОСЫ
 
@@ -290,6 +301,7 @@
     ) AS order_count
     FROM clients;
     ```
+![alt text](img/sub_queries-28.png)
 
 
 
@@ -304,6 +316,7 @@
     FROM bakeries;
     ```
 
+![alt text](img/sub_queries-29.png)
 
 
 
@@ -317,6 +330,7 @@
     WHERE w2.role = w1.role) AS avg_age
     FROM workers w1;
     ```
+![alt text](img/sub_queries-30.png)
 
 
 
@@ -333,6 +347,7 @@
     ) AS used_in_recipes
     FROM ingredients;
     ```
+![alt text](img/sub_queries-31.png)
 
 
 5) Суммарное количество ингредиента во всех рецептах:
@@ -346,6 +361,7 @@
     ) AS total_quantity_in_recipes
     FROM ingredients;
     ```
+![alt text](img/sub_queries-32.png)
 
 
 
