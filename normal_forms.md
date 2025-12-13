@@ -15,7 +15,7 @@ INSERT INTO bakery_db.units (unit_name, description) VALUES<br>
 ('ml', 'миллилитры'),<br>
 ('pcs', 'штуки');<br>
 
-![alt text](image.png)
+![alt text](img/image.png)
 
 ### baking_goods
 
