@@ -36,7 +36,13 @@ services:
 volumes:
   postgres_data:
 ```
+
+Терминал: 
+
 ![alt text](image-2.png)
+
+Docker Descktop:
+
 ![alt text](image.png)
 
 Контейнер действительно работает, к нему можно подключиться:
@@ -63,32 +69,51 @@ GRANT TEMPORARY ON DATABASE bakery_db_2_semester TO analyst;
 ## Применить миграции (минимум 3)
 Всего 3 миграции: создание таблиц, удаление нескольких столбцов из таблицы recipes и функция для добавления заказа. Для их применения запускаю Flyway через Docker.
 После миграций:
+
 ![alt text](image-3.png)
 
 ## Залить данные (250-500 к+ на 2-3 основные таблицы)
 Данные залиты в таблицы bakeries, clients и workers через скрипты на python (generate_bakeries.py, generate_clients.py, generate_workers.py)
+
 ![alt text](image-4.png)
 ![alt text](image-5.png)
 
 ## Проверить доступ (ролей).
 ### Роль readonly
 Сначала подключаемся к базе данных:
+
 ![alt text](image-6.png)
+
 Выполняем обычный SELECT (должен работать):
+
 ![alt text](image-7.png)
+
 Выполняем INSERT (не должен работать):
+
 ![alt text](image-8.png)
+
 ### Роль app
 Сначала подключаемся к базе данных:
+
 ![alt text](image-9.png)
+
 Выполняем INSERT (должен работать):
+
 ![alt text](image-10.png)
+
 Пытаемся удалить таблицу клиентов (не должен работать):
+
 ![alt text](image-11.png)
+
 ### Роль analyst
 Сначала подключаемся к базе данных и выполняем SELECT (должен работать):
+
 ![alt text](image-12.png)
+
 Попытка выполнить обновление (не должна работать):
+
 ![alt text](image-13.png)
+
 Проверка возможности работы с временными таблицами:
-![\](image-14.png)
+
+![alt tex](image-14.png)
