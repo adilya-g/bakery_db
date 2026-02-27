@@ -8,13 +8,14 @@ from datetime import datetime, timedelta
 
 DB_CONFIG = {
     'host': 'localhost',
-    'port': 5432,
+    'port': 5438,
     'dbname': 'bakery_db_2_semester',
     'user': 'admin',
-    'password': 'adminpass'  
+    'password': 'adminpass',
+    'client_encoding': 'UTF8'   # <-- добавьте эту строку
 }
 
-NUM_CLIENTS = 300_000
+NUM_CLIENTS = 250_000
 BATCH_SIZE = 1000
 
 fake = Faker('ru_RU')
@@ -51,7 +52,7 @@ def generate_client():
     # Геоточка (широта, долгота) в пределах Москвы
     lat = round(random.uniform(55.5, 56.0), 6)
     lon = round(random.uniform(37.3, 37.9), 6)
-    location = f'POINT({lon} {lat})'  # формат для PostGIS
+    location = f'({lon},{lat})'  # строка в формате (37.831658,55.69897)
 
     # Био (полнотекст) – 10% NULL
     if random.random() < 0.1:

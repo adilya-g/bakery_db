@@ -12,7 +12,8 @@ DB_CONFIG = {
     'port': 5432,
     'dbname': 'bakery_db_2_semester',
     'user': 'admin',
-    'password': 'adminpass'
+    'password': 'adminpass',
+    'client_encoding': 'UTF8'   # <-- добавьте эту строку
 }
 
 NUM_ROWS = 300_000
@@ -61,7 +62,7 @@ def generate_row(client_ids):
     # Геоточка (широта, долгота) – можно просто строка
     lat = round(random.uniform(55.0, 56.0), 6)
     lon = round(random.uniform(37.0, 38.0), 6)
-    location = f'({lat},{lon})'  # формат для PostGIS POINT, но можно и так
+    location = f'({lon},{lat})'  # строка в формате (37.831658,55.69897)
     
     # Дата создания за последний год
     days_ago = random.randint(0, 365)
@@ -73,7 +74,8 @@ def generate_row(client_ids):
     return (client_id, feedback_text, rating, tags, metadata_json, location, created_at, is_verified)
 
 def main():
-    conn = psycopg2.connect(**DB_CONFIG)
+    dsn = "host='localhost' port='5438' dbname='bakery_db_2_semester' user='admin' password='adminpass' client_encoding='UTF8'"
+    conn = psycopg2.connect(dsn)
     client_ids = get_client_ids(conn)
     if not client_ids:
         print("Нет клиентов! Сначала заполните clients.")

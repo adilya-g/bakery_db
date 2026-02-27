@@ -61,6 +61,7 @@ def get_bakery_ids_with_weights(conn):
     weights = weights / weights.sum()  # нормализация
     return bakery_ids, weights
 
+
 def generate_worker(bakery_ids, bakery_weights):
     """
     Генерирует одного работника со всеми новыми полями.
@@ -71,50 +72,44 @@ def generate_worker(bakery_ids, bakery_weights):
     first_name = fake.first_name()
     second_name = fake.last_name()
     birth_date = fake.date_of_birth(minimum_age=18, maximum_age=65)
-    
+
     # Неравномерное распределение по пекарням (используем веса)
-    bakery_id = np.random.choice(bakery_ids, p=bakery_weights)
+    # Явное преобразование numpy.int64 -> int
+    bakery_id = int(np.random.choice(bakery_ids, p=bakery_weights))
 
     # --- Новые поля ---
-    # Email (высокая кардинальность, почти уникальный)
-    # Используем уникальный email от Faker (может замедлить, но для 400к должно быть ок)
     email = fake.unique.email()
-    
-    # Статус (низкая кардинальность, перекос)
     status = random.choices(STATUSES, weights=STATUS_WEIGHTS)[0]
-    
-    # Дата найма (диапазон за последние 10 лет, равномерно)
-    days_ago = random.randint(0, 10*365)
+    days_ago = random.randint(0, 10 * 365)
     hire_date = datetime.now() - timedelta(days=days_ago)
-    
+
     # Навыки (массив) – 15% NULL, иначе от 1 до 4 навыков
     if random.random() < 0.15:
         skills = None
     else:
         num_skills = random.randint(1, 4)
         skills = random.sample(SKILLS_POOL, num_skills)
-    
+
     # Геоточка (POINT) – координаты в пределах Москвы
-    # Если PostGIS не доступен, замените на два поля lat/lon и возвращайте кортеж (lat, lon)
     lat = round(random.uniform(55.5, 56.0), 6)
     lon = round(random.uniform(37.3, 37.9), 6)
-    location = f'POINT({lon} {lat})'  # формат для PostGIS
-    
+    location = f'({lon},{lat})'  # строка вида (37.856334,55.942064)
+
+
     # Био (полнотекст) – 10% NULL
     if random.random() < 0.1:
         bio = None
     else:
         bio = fake.paragraph(nb_sentences=3)
-    
+
     # Зарплата – 20% NULL, иначе случайное число от 30000 до 150000
     if random.random() < 0.2:
         salary = None
     else:
         salary = round(random.uniform(30000, 150000), 2)
-    
+
     return (role, phone, first_name, second_name, birth_date, bakery_id,
             email, status, hire_date, skills, location, bio, salary)
-
 def main():
     conn = psycopg2.connect(**DB_CONFIG)
     
