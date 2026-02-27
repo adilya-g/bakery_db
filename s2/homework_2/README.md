@@ -164,13 +164,10 @@ DROP INDEX IF EXISTS bakery_db.idx_customer_feedback_created_at;
 
 CREATE INDEX idx_customer_feedback_created_at_hash ON bakery_db.customer_feedback USING HASH (created_at);
 ```
+#### Без индекса
 ![alt text](image-15.png)
 ![alt text](image-16.png)
 ![alt text](image-17.png)
-#### Без индекса
-![alt text](image-16.png)
-![alt text](image-17.png)
-![alt text](image-18.png)
 #### С индексом b-tree:
 ![alt text](image-35.png)
 #### С индексом hash:
