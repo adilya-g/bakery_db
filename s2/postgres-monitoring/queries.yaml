@@ -1,0 +1,89 @@
+# Время старта PostgreSQL
+pg_postmaster:
+  query: |
+    SELECT 
+      EXTRACT(epoch FROM pg_postmaster_start_time()) as start_time_seconds,
+      version() as version
+  metrics:
+    - start_time_seconds:
+        usage: "GAUGE"
+        description: "Time at which postmaster started"
+    - version:
+        usage: "LABEL"
+        description: "PostgreSQL version"
+
+# Статистика по подключениям
+pg_stat_activity:
+  query: |
+    SELECT 
+      COUNT(*) as total_connections,
+      COUNT(*) FILTER (WHERE state = 'active') as active_connections,
+      COUNT(*) FILTER (WHERE state = 'idle') as idle_connections,
+      COUNT(*) FILTER (WHERE state = 'idle in transaction') as idle_in_xact_connections,
+      COUNT(*) FILTER (WHERE wait_event IS NOT NULL) as waiting_connections
+    FROM pg_stat_activity 
+    WHERE datname = 'bakery_db_2_semester'
+  metrics:
+    - total_connections:
+        usage: "GAUGE"
+        description: "Total connections"
+    - active_connections:
+        usage: "GAUGE"
+        description: "Active connections"
+    - idle_connections:
+        usage: "GAUGE"
+        description: "Idle connections"
+    - idle_in_xact_connections:
+        usage: "GAUGE"
+        description: "Idle in transaction connections"
+    - waiting_connections:
+        usage: "GAUGE"
+        description: "Waiting connections"
+
+# Бизнес-метрики вашей пекарни
+bakery_metrics:
+  query: |
+    SELECT
+      (SELECT COUNT(*) FROM bakery_db.clients) as total_clients,
+      (SELECT COUNT(*) FROM bakery_db.workers) as total_workers,
+      (SELECT COUNT(*) FROM bakery_db.bakeries) as total_bakeries,
+      (SELECT COUNT(*) FROM bakery_db.orders) as total_orders,
+      (SELECT COUNT(*) FROM bakery_db.baking_goods) as total_baking_goods,
+      (SELECT COUNT(*) FROM bakery_db.recipes) as total_recipes
+  metrics:
+    - total_clients:
+        usage: "GAUGE"
+        description: "Total clients"
+    - total_workers:
+        usage: "GAUGE"
+        description: "Total workers"
+    - total_bakeries:
+        usage: "GAUGE"
+        description: "Total bakeries"
+    - total_orders:
+        usage: "GAUGE"
+        description: "Total orders"
+    - total_baking_goods:
+        usage: "GAUGE"
+        description: "Total baking goods"
+    - total_recipes:
+        usage: "GAUGE"
+        description: "Total recipes"
+
+# Статистика по таблицам
+table_stats:
+  query: |
+    SELECT
+      schemaname,
+      tablename,
+      n_live_tup as live_rows,
+      n_dead_tup as dead_rows
+    FROM pg_stat_user_tables
+    WHERE schemaname = 'bakery_db'
+  metrics:
+    - n_live_tup:
+        usage: "GAUGE"
+        description: "Live rows"
+    - n_dead_tup:
+        usage: "GAUGE"
+        description: "Dead rows"й
