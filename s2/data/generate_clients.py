@@ -12,7 +12,7 @@ DB_CONFIG = {
     'dbname': 'bakery_db_2_semester',
     'user': 'admin',
     'password': 'adminpass',
-    'client_encoding': 'UTF8'   # <-- добавьте эту строку
+    'client_encoding': 'UTF8'   
 }
 
 NUM_CLIENTS = 250_000

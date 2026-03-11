@@ -16,7 +16,7 @@ DB_CONFIG = {
     'client_encoding': 'UTF8'   # <-- добавьте эту строку
 }
 
-NUM_ROWS = 300_000
+NUM_ROWS = 5_000
 BATCH_SIZE = 1000
 
 fake = Faker('ru_RU')
